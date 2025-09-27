@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .cart-item {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-green {
+            animation: pulseGreen 2s infinite;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+        <div class="glass-effect rounded-xl p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
+                    🍽️ Restaurant POS
+                </h1>
+                <p class="text-gray-400">Sign in to continue</p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Enter your email">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Enter your password">
+                </div>
+                
+                <button onclick="login()" class="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-medium transition-all duration-300">
+                    Sign In
+                </button>
+                
+                <div class="text-center">
+                    <p class="text-gray-400">Don't have an account? 
+                        <button onclick="showSignup()" class="text-yellow-400 hover:text-yellow-300 font-medium">Sign Up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Screen -->
+    <div id="signupScreen" class="min-h-screen flex items-center justify-center px-4 hidden">
+        <div class="glass-effect rounded-xl p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
+                    🍽️ Create Account
+                </h1>
+                <p class="text-gray-400">Join our restaurant family</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Full Name</label>
+                    <input type="text" id="signupName" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Enter your full name">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="signupEmail" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Enter your email">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="signupPassword" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Create a password">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Phone Number</label>
+                    <input type="tel" id="signupPhone" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-yellow-500 focus:outline-none" placeholder="Enter your phone number">
+                </div>
+                
+                <button onclick="signup()" class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-300">
+                    Create Account
+                </button>
+                
+                <div class="text-center">
+                    <p class="text-gray-400">Already have an account? 
+                        <button onclick="showLogin()" class="text-yellow-400 hover:text-yellow-300 font-medium">Sign In</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main POS Interface -->
+    <div id="posInterface" class="hidden">
+        <!-- Navigation Header -->
+        <nav class="glass-effect border-b border-gray-700">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                        🍽️ Restaurant POS
+                    </h1>
+                    <span id="welcomeMessage" class="text-gray-400"></span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="showView('pos')" id="posTab" class="px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300">
+                        POS
+                    </button>
+                    <button onclick="showView('history')" id="historyTab" class="px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
+                        History
+                    </button>
+                    <button onclick="showView('profile')" id="profileTab" class="px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
+                        Profile
+                    </button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-all duration-300">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- POS View -->
+        <div id="posView" class="container mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Menu Section -->
+                <div class="lg:col-span-2">
+                    <div class="glass-effect rounded-xl p-6">
+                        <h2 class="text-2xl font-semibold mb-6 text-yellow-400">Menu</h2>
+                        
+                        <!-- Categories -->
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <button onclick="filterCategory('all')" class="category-btn px-4 py-2 rounded-full bg-yellow-500 text-black font-medium transition-all duration-300">All</button>
+                            <button onclick="filterCategory('appetizers')" class="category-btn px-4 py-2 rounded-full bg-gray-700 text-white font-medium transition-all duration-300 hover:bg-yellow-500 hover:text-black">Appetizers</button>
+                            <button onclick="filterCategory('mains')" class="category-btn px-4 py-2 rounded-full bg-gray-700 text-white font-medium transition-all duration-300 hover:bg-yellow-500 hover:text-black">Mains</button>
+                            <button onclick="filterCategory('desserts')" class="category-btn px-4 py-2 rounded-full bg-gray-700 text-white font-medium transition-all duration-300 hover:bg-yellow-500 hover:text-black">Desserts</button>
+                            <button onclick="filterCategory('beverages')" class="category-btn px-4 py-2 rounded-full bg-gray-700 text-white font-medium transition-all duration-300 hover:bg-yellow-500 hover:text-black">Beverages</button>
+                        </div>
+
+                        <!-- Menu Items Grid -->
+                        <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Section -->
+                <div class="lg:col-span-1">
+                    <div class="glass-effect rounded-xl p-6 sticky top-6">
+                        <h2 class="text-2xl font-semibold mb-6 text-green-400">Order Summary</h2>
+                        
+                        <div id="cartItems" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                            <p class="text-gray-400 text-center py-8">Cart is empty</p>
+                        </div>
+                        
+                        <div class="border-t border-gray-600 pt-4">
+                            <div class="flex justify-between text-lg font-semibold mb-4">
+                                <span>Total:</span>
+                                <span id="totalAmount" class="text-green-400">$0.00</span>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <button onclick="clearCart()" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-all duration-300">
+                                    Clear Cart
+                                </button>
+                                <button onclick="processPayment()" id="payButton" class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed" disabled>
+                                    Process Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History View -->
+        <div id="historyView" class="container mx-auto px-4 py-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Order History -->
+                <div class="glass-effect rounded-xl p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-blue-400">Order History</h2>
+                    <div id="orderHistory" class="space-y-4 max-h-96 overflow-y-auto">
+                        <p class="text-gray-400 text-center py-8">No orders yet</p>
+                    </div>
+                </div>
+
+                <!-- Payment History -->
+                <div class="glass-effect rounded-xl p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-green-400">Payment History</h2>
+                    <div id="paymentHistory" class="space-y-4 max-h-96 overflow-y-auto">
+                        <p class="text-gray-400 text-center py-8">No payments yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profileView" class="container mx-auto px-4 py-6 hidden">
+            <div class="glass-effect rounded-xl p-6 max-w-2xl mx-auto">
+                <h2 class="text-2xl font-semibold mb-6 text-purple-400">User Profile</h2>
+                <div id="profileInfo" class="space-y-4">
+                    <!-- Profile info will be populated -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-semibold mb-6 text-center text-green-400">Payment</h3>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Payment Method</label>
+                    <select id="paymentMethod" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white">
+                        <option value="cash">Cash</option>
+                        <option value="card">Credit Card</option>
+                        <option value="digital">Digital Wallet</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Amount Due</label>
+                    <input type="text" id="amountDue" readonly class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-lg font-semibold">
+                </div>
+                
+                <div id="cashPayment" class="hidden">
+                    <label class="block text-sm font-medium mb-2">Cash Received</label>
+                    <input type="number" id="cashReceived" step="0.01" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white" placeholder="0.00">
+                    <div id="changeAmount" class="mt-2 text-sm text-green-400"></div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closePaymentModal()" class="flex-1 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition-all duration-300">
+                    Cancel
+                </button>
+                <button onclick="completePayment()" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-300">
+                    Complete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-xl p-8 max-w-md w-full mx-4 text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h3 class="text-2xl font-semibold mb-4 text-green-400">Payment Successful!</h3>
+            <p class="text-gray-300 mb-6">Thank you for your order.</p>
+            <div class="flex space-x-3">
+                <button onclick="downloadReceipt()" class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-all duration-300">
+                    Download Receipt
+                </button>
+                <button onclick="closeSuccessModal()" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-300">
+                    New Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let users = [];
+        let cart = [];
+        let currentCategory = 'all';
+        let currentView = 'pos';
+        let lastOrderData = null;
+
+        // Menu data
+        const menuItems = [
+            // Appetizers
+            { id: 1, name: "Crispy Calamari", price: 12.99, category: "appetizers", image: "🦑" },
+            { id: 2, name: "Buffalo Wings", price: 14.99, category: "appetizers", image: "🍗" },
+            { id: 3, name: "Mozzarella Sticks", price: 9.99, category: "appetizers", image: "🧀" },
+            { id: 4, name: "Loaded Nachos", price: 13.99, category: "appetizers", image: "🌮" },
+            
+            // Mains
+            { id: 5, name: "Grilled Salmon", price: 24.99, category: "mains", image: "🐟" },
+            { id: 6, name: "Ribeye Steak", price: 32.99, category: "mains", image: "🥩" },
+            { id: 7, name: "Chicken Parmesan", price: 19.99, category: "mains", image: "🍗" },
+            { id: 8, name: "Margherita Pizza", price: 16.99, category: "mains", image: "🍕" },
+            { id: 9, name: "Beef Burger", price: 15.99, category: "mains", image: "🍔" },
+            { id: 10, name: "Pasta Carbonara", price: 17.99, category: "mains", image: "🍝" },
+            
+            // Desserts
+            { id: 11, name: "Chocolate Cake", price: 7.99, category: "desserts", image: "🍰" },
+            { id: 12, name: "Tiramisu", price: 8.99, category: "desserts", image: "🍮" },
+            { id: 13, name: "Ice Cream Sundae", price: 6.99, category: "desserts", image: "🍨" },
+            
+            // Beverages
+            { id: 14, name: "Craft Beer", price: 5.99, category: "beverages", image: "🍺" },
+            { id: 15, name: "House Wine", price: 7.99, category: "beverages", image: "🍷" },
+            { id: 16, name: "Fresh Coffee", price: 3.99, category: "beverages", image: "☕" },
+            { id: 17, name: "Soft Drink", price: 2.99, category: "beverages", image: "🥤" }
+        ];
+
+        // Initialize the application
+        function init() {
+            loadUsers();
+            if (currentUser) {
+                showPOSInterface();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        // User Management
+        function loadUsers() {
+            const savedUsers = localStorage ? localStorage.getItem('restaurantUsers') : null;
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            }
+            
+            const savedCurrentUser = localStorage ? localStorage.getItem('currentUser') : null;
+            if (savedCurrentUser) {
+                currentUser = JSON.parse(savedCurrentUser);
+            }
+        }
+
+        function saveUsers() {
+            if (localStorage) {
+                localStorage.setItem('restaurantUsers', JSON.stringify(users));
+            }
+        }
+
+        function saveCurrentUser() {
+            if (localStorage) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+        }
+
+        // Authentication Functions
+        function showSignup() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('signupScreen').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('signupScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const phone = document.getElementById('signupPhone').value;
+
+            if (!name || !email || !password || !phone) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (users.find(user => user.email === email)) {
+                alert('Email already exists');
+                return;
+            }
+
+            const newUser = {
+                id: users.length + 1,
+                name,
+                email,
+                password,
+                phone,
+                orderHistory: [],
+                paymentHistory: [],
+                joinDate: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            saveUsers();
+            currentUser = newUser;
+            saveCurrentUser();
+            showPOSInterface();
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                saveCurrentUser();
+                showPOSInterface();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            cart = [];
+            if (localStorage) {
+                localStorage.removeItem('currentUser');
+            }
+            showLoginScreen();
+        }
+
+        // Screen Management
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('signupScreen').classList.add('hidden');
+            document.getElementById('posInterface').classList.add('hidden');
+        }
+
+        function showPOSInterface() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('signupScreen').classList.add('hidden');
+            document.getElementById('posInterface').classList.remove('hidden');
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}`;
+            renderMenuItems();
+            updateCartDisplay();
+            showView('pos');
+        }
+
+        // View Management
+        function showView(viewName) {
+            // Hide all views
+            document.getElementById('posView').classList.add('hidden');
+            document.getElementById('historyView').classList.add('hidden');
+            document.getElementById('profileView').classList.add('hidden');
+            
+            // Update tab styles
+            document.querySelectorAll('#posTab, #historyTab, #profileTab').forEach(tab => {
+                tab.className = 'px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300';
+            });
+
+            // Show selected view
+            if (viewName === 'pos') {
+                document.getElementById('posView').classList.remove('hidden');
+                document.getElementById('posTab').className = 'px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300';
+            } else if (viewName === 'history') {
+                document.getElementById('historyView').classList.remove('hidden');
+                document.getElementById('historyTab').className = 'px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300';
+                loadHistoryData();
+            } else if (viewName === 'profile') {
+                document.getElementById('profileView').classList.remove('hidden');
+                document.getElementById('profileTab').className = 'px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300';
+                loadProfileData();
+            }
+            
+            currentView = viewName;
+        }
+
+        // Menu Functions
+        function renderMenuItems() {
+            const menuGrid = document.getElementById('menuGrid');
+            const filteredItems = currentCategory === 'all' 
+                ? menuItems 
+                : menuItems.filter(item => item.category === currentCategory);
+            
+            menuGrid.innerHTML = filteredItems.map(item => `
+                <div class="menu-item glass-effect rounded-lg p-4 cursor-pointer transition-all duration-300 hover:bg-opacity-10 hover:bg-white" onclick="addToCart(${item.id})">
+                    <div class="text-4xl mb-3 text-center">${item.image}</div>
+                    <h3 class="font-semibold text-lg mb-2">${item.name}</h3>
+                    <p class="text-green-400 font-bold text-xl">$${item.price.toFixed(2)}</p>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Update button styles
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.className = 'category-btn px-4 py-2 rounded-full bg-gray-700 text-white font-medium transition-all duration-300 hover:bg-yellow-500 hover:text-black';
+            });
+            event.target.className = 'category-btn px-4 py-2 rounded-full bg-yellow-500 text-black font-medium transition-all duration-300';
+            
+            renderMenuItems();
+        }
+
+        // Cart Functions
+        function addToCart(itemId) {
+            const item = menuItems.find(item => item.id === itemId);
+            const existingItem = cart.find(cartItem => cartItem.id === itemId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            
+            updateCartDisplay();
+        }
+
+        function removeFromCart(itemId) {
+            const itemIndex = cart.findIndex(item => item.id === itemId);
+            if (itemIndex > -1) {
+                if (cart[itemIndex].quantity > 1) {
+                    cart[itemIndex].quantity -= 1;
+                } else {
+                    cart.splice(itemIndex, 1);
+                }
+            }
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const totalAmount = document.getElementById('totalAmount');
+            const payButton = document.getElementById('payButton');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-400 text-center py-8">Cart is empty</p>';
+                payButton.disabled = true;
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item flex items-center justify-between bg-gray-800 bg-opacity-50 rounded-lg p-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${item.image}</span>
+                            <div>
+                                <h4 class="font-medium">${item.name}</h4>
+                                <p class="text-sm text-gray-400">$${item.price.toFixed(2)} each</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="removeFromCart(${item.id})" class="w-8 h-8 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-all duration-300">
+                                -
+                            </button>
+                            <span class="w-8 text-center font-medium">${item.quantity}</span>
+                            <button onclick="addToCart(${item.id})" class="w-8 h-8 bg-green-600 hover:bg-green-700 rounded-full flex items-center justify-center transition-all duration-300">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                payButton.disabled = false;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmount.textContent = `$${total.toFixed(2)}`;
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartDisplay();
+        }
+
+        // Payment Functions
+        function processPayment() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('amountDue').value = `$${total.toFixed(2)}`;
+            document.getElementById('paymentModal').classList.remove('hidden');
+            
+            // Handle payment method change
+            document.getElementById('paymentMethod').onchange = function() {
+                const cashPayment = document.getElementById('cashPayment');
+                if (this.value === 'cash') {
+                    cashPayment.classList.remove('hidden');
+                } else {
+                    cashPayment.classList.add('hidden');
+                }
+            };
+        }
+
+        function completePayment() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            if (paymentMethod === 'cash') {
+                const received = parseFloat(document.getElementById('cashReceived').value) || 0;
+                if (received < total) {
+                    alert('Insufficient cash amount!');
+                    return;
+                }
+            }
+            
+            // Create order record
+            const orderData = {
+                orderId: 'ORD' + Date.now(),
+                items: [...cart],
+                total: total,
+                paymentMethod: paymentMethod,
+                date: new Date().toISOString(),
+                status: 'completed'
+            };
+
+            // Create payment record
+            const paymentData = {
+                paymentId: 'PAY' + Date.now(),
+                orderId: orderData.orderId,
+                amount: total,
+                method: paymentMethod,
+                date: new Date().toISOString(),
+                status: 'success'
+            };
+
+            // Add to user's history
+            currentUser.orderHistory.unshift(orderData);
+            currentUser.paymentHistory.unshift(paymentData);
+            
+            // Update users array
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex > -1) {
+                users[userIndex] = currentUser;
+            }
+            
+            saveUsers();
+            saveCurrentUser();
+            
+            // Store for receipt
+            lastOrderData = orderData;
+            
+            closePaymentModal();
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        // Calculate change
+        document.addEventListener('DOMContentLoaded', function() {
+            const cashReceivedInput = document.getElementById('cashReceived');
+            if (cashReceivedInput) {
+                cashReceivedInput.oninput = function() {
+                    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    const received = parseFloat(this.value) || 0;
+                    const change = received - total;
+                    const changeAmount = document.getElementById('changeAmount');
+                    
+                    if (change >= 0) {
+                        changeAmount.textContent = `Change: ${change.toFixed(2)}`;
+                        changeAmount.className = 'mt-2 text-sm text-green-400';
+                    } else {
+                        changeAmount.textContent = `Need: ${Math.abs(change).toFixed(2)} more`;
+                        changeAmount.className = 'mt-2 text-sm text-red-400';
+                    }
+                };
+            }
+        });
+
+        // Modal Functions
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+            document.getElementById('cashReceived').value = '';
+            document.getElementById('changeAmount').textContent = '';
+            document.getElementById('cashPayment').classList.add('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            clearCart();
+        }
+
+        // History Functions
+        function loadHistoryData() {
+            loadOrderHistory();
+            loadPaymentHistory();
+        }
+
+        function loadOrderHistory() {
+            const orderHistory = document.getElementById('orderHistory');
+            
+            if (currentUser.orderHistory.length === 0) {
+                orderHistory.innerHTML = '<p class="text-gray-400 text-center py-8">No orders yet</p>';
+                return;
+            }
+
+            orderHistory.innerHTML = currentUser.orderHistory.map(order => `
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-semibold text-blue-400">${order.orderId}</h4>
+                            <p class="text-sm text-gray-400">${new Date(order.date).toLocaleString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-400">${order.total.toFixed(2)}</p>
+                            <span class="text-xs px-2 py-1 bg-green-600 rounded-full">${order.status}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        ${order.items.map(item => `
+                            <div class="flex justify-between text-sm">
+                                <span>${item.name} x${item.quantity}</span>
+                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="downloadOrderReceipt('${order.orderId}')" class="mt-3 w-full py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-medium transition-all duration-300">
+                        Download Receipt
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function loadPaymentHistory() {
+            const paymentHistory = document.getElementById('paymentHistory');
+            
+            if (currentUser.paymentHistory.length === 0) {
+                paymentHistory.innerHTML = '<p class="text-gray-400 text-center py-8">No payments yet</p>';
+                return;
+            }
+
+            paymentHistory.innerHTML = currentUser.paymentHistory.map(payment => `
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-green-400">${payment.paymentId}</h4>
+                            <p class="text-sm text-gray-400">Order: ${payment.orderId}</p>
+                            <p class="text-sm text-gray-400">${new Date(payment.date).toLocaleString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-400">${payment.amount.toFixed(2)}</p>
+                            <p class="text-sm capitalize text-gray-300">${payment.method}</p>
+                            <span class="text-xs px-2 py-1 bg-green-600 rounded-full">${payment.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Profile Functions
+        function loadProfileData() {
+            const profileInfo = document.getElementById('profileInfo');
+            const totalOrders = currentUser.orderHistory.length;
+            const totalSpent = currentUser.paymentHistory.reduce((sum, payment) => sum + payment.amount, 0);
+            
+            profileInfo.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-effect rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-purple-400">Personal Information</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm text-gray-400">Name</label>
+                                <p class="font-medium">${currentUser.name}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400">Email</label>
+                                <p class="font-medium">${currentUser.email}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400">Phone</label>
+                                <p class="font-medium">${currentUser.phone}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400">Member Since</label>
+                                <p class="font-medium">${new Date(currentUser.joinDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-effect rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-4 text-green-400">Order Statistics</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Orders:</span>
+                                <span class="font-bold text-blue-400">${totalOrders}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Spent:</span>
+                                <span class="font-bold text-green-400">${totalSpent.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Average Order:</span>
+                                <span class="font-bold text-yellow-400">${totalOrders > 0 ? (totalSpent / totalOrders).toFixed(2) : '0.00'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Favorite Payment:</span>
+                                <span class="font-bold text-purple-400">${getFavoritePaymentMethod()}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getFavoritePaymentMethod() {
+            if (currentUser.paymentHistory.length === 0) return 'None';
+            
+            const methods = {};
+            currentUser.paymentHistory.forEach(payment => {
+                methods[payment.method] = (methods[payment.method] || 0) + 1;
+            });
+            
+            return Object.keys(methods).reduce((a, b) => methods[a] > methods[b] ? a : b);
+        }
+
+        // Receipt Functions
+        function downloadReceipt() {
+            if (lastOrderData) {
+                generateAndDownloadReceipt(lastOrderData);
+            }
+        }
+
+        function downloadOrderReceipt(orderId) {
+            const order = currentUser.orderHistory.find(o => o.orderId === orderId);
+            if (order) {
+                generateAndDownloadReceipt(order);
+            }
+        }
+
+        function generateAndDownloadReceipt(orderData) {
+            const receiptContent = `
+RESTAURANT POS RECEIPT
+========================
+Order ID: ${orderData.orderId}
+Date: ${new Date(orderData.date).toLocaleString()}
+Customer: ${currentUser.name}
+Email: ${currentUser.email}
+Phone: ${currentUser.phone}
+
+========================
+ITEMS ORDERED:
+========================
+${orderData.items.map(item => 
+    `${item.name}\n  ${item.quantity} x ${item.price.toFixed(2)} = ${(item.price * item.quantity).toFixed(2)}`
+).join('\n\n')}
+
+========================
+PAYMENT DETAILS:
+========================
+Subtotal: ${orderData.total.toFixed(2)}
+Tax: $0.00
+Total: ${orderData.total.toFixed(2)}
+Payment Method: ${orderData.paymentMethod.toUpperCase()}
+Status: ${orderData.status.toUpperCase()}
+
+========================
+Thank you for dining with us!
+Visit us again soon.
+========================
+
+Generated on: ${new Date().toLocaleString()}
+            `.trim();
+
+            // Create and download the receipt
+            const blob = new Blob([receiptContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `receipt_${orderData.orderId}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
