@@ -164,31 +164,33 @@
     <!-- Main POS Interface -->
     <div id="posInterface" class="hidden">
         <!-- Navigation Header -->
-        <nav class="glass-effect border-b border-gray-700">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
-                        🍽️ Restaurant POS
-                    </h1>
-                    <span id="welcomeMessage" class="text-gray-400"></span>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <button onclick="showView('pos')" id="posTab" class="px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300">
-                        POS
-                    </button>
-                    <button onclick="showView('history')" id="historyTab" class="px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
-                        History
-                    </button>
-                    <button onclick="showView('profile')" id="profileTab" class="px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
-                        Profile
-                    </button>
-                    <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-all duration-300">
-                        Logout
-                    </button>
-                </div>
-            </div>
-        </nav>
+        
+<nav class="glass-effect border-b border-gray-700">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                🍽️ Restaurant POS
+            </h1>
+            <span id="welcomeMessage" class="text-gray-400"></span>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <button onclick="showView('pos')" id="posTab" class="w-28 px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium transition-all duration-300">
+                POS
+            </button>
+            <button onclick="showView('history')" id="historyTab" class="w-28 px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
+                History
+            </button>
+            <button onclick="showView('profile')" id="profileTab" class="w-28 px-4 py-2 bg-gray-700 text-white hover:bg-yellow-500 hover:text-black rounded-lg font-medium transition-all duration-300">
+                Profile
+            </button>
+            <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-all duration-300">
+                Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
 
         <!-- POS View -->
         <div id="posView" class="container mx-auto px-4 py-6">
